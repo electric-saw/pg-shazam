@@ -1,0 +1,29 @@
+clusters:
+  - rw: postgresql://postgres:postgres@pg1_1:5432/postgres
+    # ro:
+    #   -  postgresql://postgres:postgres@localhost:54322/postgres
+  - rw: postgresql://postgres:postgres@pg2_1:5432/postgres
+    # ro:
+    #   -  postgresql://postgres:postgres@localhost:54324/postgres
+
+address: 0.0.0.0:5432
+
+health:
+  timeout: 20s
+  retries: 3
+
+replication:
+  factor: 3
+  min.insync: 2
+  strategy: 0
+
+pool:
+  maxconnlifetime: 1h
+  maxconnidletime: 30m
+  maxconns: 500
+  healthcheckperiod: 20s
+  lazyconnect: true
+
+sync:
+  address: 0.0.0.0:5333
+  data_path: /tmp/data
