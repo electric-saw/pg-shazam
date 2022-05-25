@@ -22,10 +22,15 @@ func ValidateUser(conn *backend.Conn, user, pass string) (bool, string) {
 		return false, err.Error()
 	}
 
-	if passDb != pass {
-		return false, "Wrong user/password"
+	ok, err := passwordCheck(user, pass, passDb)
+	if err != nil {
+		return false, err.Error()
 	}
 
-	return true, "Success"
+	if !ok {
+		return false, "Wrong user/password"
+	} else {
+		return true, "Success"
+	}
 
 }

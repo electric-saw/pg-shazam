@@ -71,13 +71,12 @@ func (s *Shazam) RunAllPrimaryHosts(qry string) []error {
 		if err != nil {
 			return []error{err}
 		}
-		txs = append(txs, tx)
-		t, err := tx.Exec(context.Background(), qry)
+		_, err = tx.Exec(context.Background(), qry)
 		if err != nil {
 			errs = append(errs, err)
 		}
-		t.Insert()
 
+		txs = append(txs, tx)
 	}
 
 	for _, tx := range txs {

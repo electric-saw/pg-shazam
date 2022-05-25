@@ -1,4 +1,4 @@
-package frontend
+package api
 
 import (
 	"fmt"
@@ -10,14 +10,13 @@ import (
 	"github.com/electric-saw/pg-shazam/internal/pkg/proxy"
 )
 
-type Frontend struct {
-	listenAddress string
-	shazam        *backend.Shazam
-	conf          *config.Shazam
-	proxyPool     *proxy.ProxyPool
+type Api struct {
+	shazam    *backend.Shazam
+	conf      *config.Shazam
+	proxyPool *proxy.ProxyPool
 }
 
-func NewFrontend(configFile string) (*Frontend, error) {
+func NewAPI(configFile string) (*Api, error) {
 	conf := config.NewShazam()
 	err := conf.LoadFromFile(configFile)
 	if err != nil {
@@ -26,21 +25,21 @@ func NewFrontend(configFile string) (*Frontend, error) {
 
 	shazam, err := backend.NewShazam(conf)
 	if err != nil {
-		return nil, fmt.Errorf("Failed on create cluster %w", err)
+		return nil, fmt.Errorf("Failed on create cluster: %w", err)
 	}
 
-	return &Frontend{
+	return &Api{
 		conf:      conf,
 		shazam:    shazam,
 		proxyPool: proxy.NewProxyPool(shazam),
 	}, nil
 }
 
-func (s *Frontend) Close() {
+func (s *Api) Close() {
 	s.shazam.StateServer.Close()
 }
 
-func (s *Frontend) Run() error {
+func (s *Api) Run() error {
 	PrintHead()
 
 	ln, err := net.Listen("tcp", s.conf.ListenAddress)

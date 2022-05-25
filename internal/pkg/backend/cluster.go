@@ -38,7 +38,8 @@ func NewCluster(clusterCfg *config.Cluster, pool *config.Pool) (*Cluster, error)
 
 func (c *Cluster) GetROConnection(ctx context.Context) (*Conn, error) {
 	s := c.byLowConnections()
-	log.Debugf("GetConnection selected %s", s.Server.ConnectionStringHiddenPass())
+
+	log.Debugf("GetConnection selected %d: %s", s.Id, s.Server.ConnectionStringHiddenPass())
 	return s.Acquire(ctx)
 }
 func (c *Cluster) GetRWConnection(ctx context.Context) (*Conn, error) {

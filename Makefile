@@ -75,12 +75,6 @@ test-unit:
 	@echo "==> Running unit tests <=="
 	GO111MODULE=on go test $(GOFLAGS) -run $(TESTS) $(PKG) $(TESTFLAGS)
 
-.PHONY: test-coverage
-test-coverage:
-	@echo
-	@echo "==> Running unit tests with coverage <=="
-	@ ./scripts/coverage.sh
-
 .PHONY: test-style
 test-style:
 	GO111MODULE=on golangci-lint run
@@ -156,3 +150,10 @@ changelog:
 .PHONY: proto
 proto:
 	@protoc -I=. --go_out=. ./internal/pkg/state/store/*.proto
+
+
+.PHONY: dependencies
+dependencies:
+	go install github.com/go-critic/go-critic/cmd/gocritic@latest
+	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install golang.org/x/tools/cmd/goimports@latest

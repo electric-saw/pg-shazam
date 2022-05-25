@@ -1,7 +1,7 @@
 package start
 
 import (
-	"github.com/electric-saw/pg-shazam/internal/pkg/frontend"
+	"github.com/electric-saw/pg-shazam/internal/pkg/api"
 	"github.com/electric-saw/pg-shazam/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -18,10 +18,10 @@ func NewCmdStart() *cobra.Command {
 }
 
 func doRun(file string) {
-	f, err := frontend.NewFrontend(file)
+	api, err := api.NewAPI(file)
 	util.CheckErr(err)
 
-	defer f.Close()
+	defer api.Close()
 
-	util.CheckErr(f.Run())
+	util.CheckErr(api.Run())
 }

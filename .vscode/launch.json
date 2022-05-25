@@ -14,6 +14,14 @@
                 "LOG_LEVEL": "trace"
             },
             "args": ["start", "${workspaceFolder}/conf/sample.yaml"]
+        },
+        {
+            "name": "Launch gen",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/internal/pkg/parser/lexer/gen/search_gen.go",
+            "cwd": "${workspaceFolder}/internal/pkg/parser/lexer",
         }
     ]
 }

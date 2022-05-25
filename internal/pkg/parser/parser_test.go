@@ -7,12 +7,12 @@ import (
 )
 
 func run(input string, t *testing.T) {
-	qry := ParseQuery(input)
+	qry, _ := ParseQuery(input)
 	assert.NotEqual(t, qry.TableName, "")
 }
 
 func TestParseSelect1(t *testing.T) {
-	run("SELECT 1", t)
+	run("SELECT 1 from xundas", t)
 }
 func TestParseSelect2(t *testing.T) {
 	run("SELECT 1 FROM x WHERE y IN ('a', 'b', 'c') AND o = 2", t)

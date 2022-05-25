@@ -109,9 +109,9 @@ func (c *Conn) AssumeClient(ctx context.Context, client *definitions.FrontendCli
 			switch msg := rawMsg.(type) {
 			case *definitions.Error:
 				return msg.Err
-
+			default:
+				client.ReadNext()
 			}
-			client.ReadNext()
 		case rawMsg := <-c.MsgChan: // From backend
 			if log.IsLevel(log.TraceLevel) {
 				buf, err := json.Marshal(rawMsg)

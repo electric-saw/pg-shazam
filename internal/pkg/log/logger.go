@@ -11,7 +11,8 @@ import (
 type LogWriter interface {
 	Write(buf []byte) error
 }
-type stackTracer interface {
+
+type StackTracer interface {
 	StackTrace() errors.StackTrace
 }
 

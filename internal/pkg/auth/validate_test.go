@@ -1,14 +1,9 @@
 package auth
 
 import (
-	"context"
 	"crypto/md5"
 	"fmt"
 	"testing"
-
-	"github.com/electric-saw/pg-shazam/internal/pkg/backend"
-
-	"github.com/electric-saw/pg-shazam/internal/pkg/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -19,22 +14,14 @@ const (
 )
 
 func TestValidateUser(t *testing.T) {
-	shazamCfg := config.NewShazam()
-	err := shazamCfg.LoadFromFile("../../../conf/sample.yaml")
-	assert.Nil(t, err)
-
-	cluster, err := backend.NewCluster(shazamCfg.Clusters[0], shazamCfg.Pool)
-	assert.Nil(t, err, "Shazan compose is up?")
-
 	h := md5.New()
 	_, _ = h.Write([]byte(Pass + User))
 
-	conn, err := cluster.GetROConnection(context.Background())
-	assert.Nil(t, err)
-	defer conn.Release()
+	pass := fmt.Sprintf("md5%x", string(h.Sum(nil)))
 
-	ok, msg := ValidateUser(conn, User, fmt.Sprintf("md5%x", string(h.Sum(nil))))
+	ok, err := passwordCheck(User, Pass, pass)
 
-	assert.True(t, ok, msg)
+	assert.True(t, ok)
+	assert.NoError(t, err)
 
 }
