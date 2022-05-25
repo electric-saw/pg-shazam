@@ -2,9 +2,9 @@ package proxy
 
 import (
 	"context"
-	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/electric-saw/pg-shazam/internal/pkg/auth"
 	"github.com/electric-saw/pg-shazam/internal/pkg/definitions"
@@ -22,10 +22,6 @@ func (p *Proxy) startup(client *definitions.FrontendClient) (bool, error) {
 
 		switch msg := startupMessage.(type) {
 		case *pgproto3.StartupMessage:
-			if db, ok := msg.Parameters["database"]; ok {
-				client.CurrDatabase = db
-			}
-
 			return p.handlePass(client, msg)
 
 		case *pgproto3.SSLRequest:
@@ -90,7 +86,7 @@ func (p *Proxy) handlePass(client *definitions.FrontendClient, msg *pgproto3.Sta
 
 		msgFront, err := client.Backend.Receive()
 		if err != nil {
-			if err.Error() == "EOF" {
+			if strings.Contains(err.Error(), "EOF") {
 				return true, nil
 			}
 			return false, fmt.Errorf("error receiving password message: %s", err)
@@ -98,9 +94,6 @@ func (p *Proxy) handlePass(client *definitions.FrontendClient, msg *pgproto3.Sta
 
 		switch passMsg := msgFront.(type) {
 		case *pgproto3.PasswordMessage:
-			h := md5.New()
-			_, _ = h.Write([]byte(passMsg.Password + user))
-			hashPass := fmt.Sprintf("md5%x", string(h.Sum(nil)))
 
 			var buf []byte
 
@@ -111,7 +104,7 @@ func (p *Proxy) handlePass(client *definitions.FrontendClient, msg *pgproto3.Sta
 
 			defer pgconn.Release()
 
-			if ok, msg := auth.ValidateUser(pgconn, user, hashPass); ok {
+			if ok, msg := auth.ValidateUser(pgconn, user, passMsg.Password); ok {
 				buf = (&pgproto3.AuthenticationOk{}).Encode(buf)
 				pid, secretKey := state.NewBackendKey(client.Conn)
 

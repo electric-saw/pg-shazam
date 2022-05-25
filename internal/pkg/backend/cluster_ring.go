@@ -58,7 +58,7 @@ func getShardingKeyValue(qry *parser.Query, shardColumns []string) []byte {
 	for _, v := range qry.Conditions {
 		for _, col := range shardColumns {
 			if v.Field == col {
-				keyShard = keyShard + v.Value
+				keyShard += v.Value
 			}
 		}
 	}

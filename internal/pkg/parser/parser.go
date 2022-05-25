@@ -29,29 +29,33 @@ type Query struct {
 	QueryString  string
 }
 
-func ParseQuery(query string) Query {
+func ParseQuery(query string) (*Query, error) {
 	norQuery := normalize(query)
 	op, isDDLOperation := howIsOperation(norQuery)
-	// TODO: adjust error handling
-	table, _ := howIsMainTable(norQuery, op)
+
+	table, err := howIsMainTable(norQuery, op)
+	if err != nil {
+		return nil, err
+	}
 
 	if isDDLOperation {
-		return Query{
+		return &Query{
 			Operation:    op,
 			TableName:    table,
 			Shards:       getColumnsShard(norQuery),
 			Conditions:   howIsConditionsEquals(norQuery, op),
 			DDLOperation: true,
 			QueryString:  removeShardInQuery(query),
-		}
+		}, nil
 	} else {
-		return Query{
+		return &Query{
 			Operation:    op,
 			TableName:    table,
 			Conditions:   howIsConditionsEquals(norQuery, op),
+			Shards:       getColumnsShard(norQuery),
 			DDLOperation: false,
 			QueryString:  query,
-		}
+		}, nil
 	}
 }
 

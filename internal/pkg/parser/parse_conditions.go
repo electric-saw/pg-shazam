@@ -10,8 +10,8 @@ func getConditionsWithWhereClause(query string) []Condition {
 		if strings.Contains(v, "=") {
 			val := strings.Split(v, "=")
 			cond := Condition{
-				Field: val[0],
-				Value: val[1],
+				Field: strings.TrimSpace(val[0]),
+				Value: strings.TrimSpace(val[1]),
 			}
 			conditions = append(conditions, cond)
 		}

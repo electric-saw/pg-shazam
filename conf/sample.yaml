@@ -1,10 +1,10 @@
 clusters:
   - rw: postgresql://postgres:postgres@localhost:54321/postgres
-    # ro:
-    #   -  postgresql://postgres:postgres@localhost:54322/postgres
+    ro:
+      - postgresql://postgres:postgres@localhost:54322/postgres
   - rw: postgresql://postgres:postgres@localhost:54323/postgres
-    # ro:
-    #   -  postgresql://postgres:postgres@localhost:54324/postgres
+    ro:
+      - postgresql://postgres:postgres@localhost:54324/postgres
 
 address: 0.0.0.0:5432
 

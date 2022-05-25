@@ -25,26 +25,31 @@ func (p *Proxy) handleMessages(client *definitions.FrontendClient) error {
 
 	for {
 		log.Debugf("Handling messages of %s", client.Conn.RemoteAddr().String())
-		select {
-		case msg := <-client.MsgChan:
-			switch msg.(type) {
-			case *pgproto3.Terminate:
-				return nil
-			default:
-				err := p.redirectMessage(client, msg)
-				if err != nil {
-					return err
-				}
-				client.ReadNext()
+
+		msg := <-client.MsgChan
+		switch msg.(type) {
+		case *pgproto3.Terminate:
+			return nil
+		default:
+			err := p.redirectMessage(client, msg)
+			if err != nil {
+				return err
 			}
+			client.ReadNext()
 		}
+
 	}
 }
 
 func (p *Proxy) redirectMessage(client *definitions.FrontendClient, raw pgproto3.FrontendMessage) (err error) {
 	switch msg := raw.(type) {
 	case *pgproto3.Query:
-		qry := parser.ParseQuery(msg.String)
+
+		qry, err := parser.ParseQuery(msg.String)
+		if err != nil {
+			log.Warnf("Fail on parse query %s: %s", msg.String, err)
+			return err
+		}
 
 		if qry.Operation == parser.Set {
 			conn, err := p.shazam.GetROConnection(context.Background())
@@ -105,7 +110,7 @@ func (p *Proxy) redirectMessage(client *definitions.FrontendClient, raw pgproto3
 
 			var cluster *backend.Cluster
 			if hs != nil {
-				cluster = p.shazam.ClusterByHash(&qry, hs.Fields)
+				cluster = p.shazam.ClusterByHash(qry, hs.Fields)
 			} else {
 				cluster = p.shazam.GetRandomCluster()
 			}

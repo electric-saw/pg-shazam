@@ -1,51 +1,51 @@
 version: "3"
 
 services:
-  app:
-    build:
-      context: .
-    environment:
-      PORT: 5433
-    ports:
-      - 5433:5432
-    volumes:
-      - ./conf/docker.yaml:/conf.yaml
-    depends_on:
-      - pg1_1
-      - pg1_2
-      - pg2_1
-      - pg2_2
+  # app:
+  #   build:
+  #     context: .
+  #   environment:
+  #     PORT: 5433
+  #   ports:
+  #     - 5433:5432
+  #   volumes:
+  #     - ./conf/docker.yaml:/conf.yaml
+  #   depends_on:
+  #     - pg1_1
+  #     - pg1_2
+  #     - pg2_1
+  #     - pg2_2
 
   pg1_1:
-    image: postgres:13
+    image: bitnami/postgresql:14
     environment: &pg_env
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_USERNAME: postgres
+      POSTGRESQL_PASSWORD: postgres
+      POSTGRESQL_DATABASE: shazam
+      POSTGRESQL_REPLICATION_USER: replication
+      POSTGRESQL_REPLICATION_PASSWORD: "12345678"
     ports:
       - 54321:5432
     volumes:
       - pg1-1:/var/lib/postgresql/data
       - ./conf/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
-      - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
-      - ./conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
 
   pg1_2:
-    image: postgres:13
+    image: bitnami/postgresql:14
     environment:
       <<: *pg_env
-      MASTER: pg1_1
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_MASTER_HOST: pg1_1
     depends_on:
       - pg1_1
     ports:
       - 54322:5432
     volumes:
       - pg1-2:/var/lib/postgresql/data
-      - ./conf/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
-      - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
-      - ./conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
 
   pg2_1:
-    image: postgres:13
+    image: bitnami/postgresql:14
     environment:
       <<: *pg_env
     ports:
@@ -53,23 +53,19 @@ services:
     volumes:
       - pg2-1:/var/lib/postgresql/data
       - ./conf/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
-      - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
-      - ./conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
 
   pg2_2:
-    image: postgres:13
+    image: bitnami/postgresql:14
     environment:
       <<: *pg_env
-      MASTER: pg2_1
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_MASTER_HOST: pg2_1
     depends_on:
       - pg2_1
     ports:
       - 54324:5432
     volumes:
       - pg2-2:/var/lib/postgresql/data
-      - ./conf/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
-      - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
-      - ./conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
 
 volumes:
   pg1-1:

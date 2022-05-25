@@ -17,14 +17,6 @@ func after(value string, a string) string {
 	return value[adjustedPos:]
 }
 
-//func before(value string, a string) string {
-//	pos := strings.Index(value, a)
-//	if pos == -1 {
-//		return ""
-//	}
-//	return value[0:pos]
-//}
-
 func normalize(txt string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.Trim(txt, " ")), "\n", " ")
 }

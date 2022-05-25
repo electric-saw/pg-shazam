@@ -3,9 +3,11 @@ package config
 import (
 	"io/ioutil"
 
-	"github.com/ghodss/yaml"
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v3"
 )
+
+const defaultAddress = "0.0.0.0:5432"
 
 type Shazam struct {
 	ListenAddress string       `yaml:"address"`
@@ -19,12 +21,13 @@ type Shazam struct {
 
 func NewShazam() *Shazam {
 	return &Shazam{
-		ListenAddress: "0.0.0.0:5432",
+		ListenAddress: defaultAddress,
+		Clusters:      []*Cluster{},
 		Health:        NewHealth(),
 		Replication:   NewReplication(),
 		Pool:          NewPoolConfig(),
-		NodeID:        uuid.New().URN(),
 		Sync:          NewSync(),
+		NodeID:        uuid.New().URN(),
 	}
 }
 
